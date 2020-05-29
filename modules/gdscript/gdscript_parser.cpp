@@ -4588,13 +4588,18 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
 
 									String identifier = tokenizer->get_token_identifier();
 
-									if (!ClassDB::class_exists(identifier)) {
+									if (!ClassDB::class_exists(identifier) && !ScriptServer::is_global_class(identifier)) {
 										current_export = PropertyInfo();
 										_set_error(vformat("Node Type \"%s\" doesn't exist", identifier));
 										return;
 									}
 
-									if (!ClassDB::is_parent_class(identifier, "Node")) {
+									String class_type = identifier;
+									if (ScriptServer::is_global_class(identifier)) {
+										class_type = ScriptServer::get_global_class_native_base(identifier);
+									}
+
+									if (!ClassDB::is_parent_class(class_type, "Node")) {
 										current_export = PropertyInfo();
 										_set_error(vformat("\"%s\" does not inherit from Node", identifier));
 										return;
